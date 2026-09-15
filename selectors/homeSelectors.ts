@@ -7,5 +7,6 @@ export const homeSelectors = {
   searchButton: (page: Page) => page.getByRole('button', { name: /search/i }),
   cartLink: (page: Page) => page.getByRole('link', { name: /^Shopping cart \(\d+\)$/ }).first(),
   featuredProduct: (page: Page, name: string) => page.locator('.product-grid .item-box').filter({ hasText: name }),
+  recentlyViewedProducts: (page: Page) => page.locator('div.block-recently-viewed-products'),
   userNameLink: (page: Page) => page.getByRole('link', { name: /customer/i }),
 };
