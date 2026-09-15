@@ -53,6 +53,19 @@ test.describe('DemoWebShop', () => {
     await expect(page.locator('body')).toContainText(/computer|search|product/i);
   });
 
+  test('shows two opened products in recently viewed products', async ({ page }) => {
+    const homePage = new HomePage(page);
+    const productNames = ['14.1-inch Laptop', 'Build your own computer'];
+
+    await homePage.open();
+    await homePage.openFeaturedProduct(productNames[0]);
+    await homePage.open();
+    await homePage.openFeaturedProduct(productNames[1]);
+    await homePage.open();
+
+    await homePage.expectRecentlyViewedProducts(productNames);
+  });
+
   test('registers and adds featured products to the cart', async ({ page }) => {
     const homePage = new HomePage(page);
     const registrationPage = new RegistrationPage(page);

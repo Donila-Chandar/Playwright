@@ -56,6 +56,20 @@ export class HomePage extends BasePage {
     ]);
   }
 
+  async openFeaturedProduct(name: string) {
+    await homeSelectors.featuredProduct(this.page, name).getByRole('link', { name }).first().click();
+    await this.waitForPageReady();
+  }
+
+  async expectRecentlyViewedProducts(names: string[]) {
+    const recentlyViewedProducts = homeSelectors.recentlyViewedProducts(this.page);
+    await expect(recentlyViewedProducts).toBeVisible();
+
+    for (const name of names) {
+      await expect(recentlyViewedProducts.getByRole('link', { name, exact: true })).toBeVisible();
+    }
+  }
+
   async expectCartCount(count: number) {
     await expect(homeSelectors.cartLink(this.page)).toContainText(`(${count})`);
   }
