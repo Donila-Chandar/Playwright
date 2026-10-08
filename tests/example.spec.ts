@@ -86,3 +86,49 @@ test.describe('DemoWebShop', () => {
     await homePage.expectCartCount(2);
   });
 });
+
+test('login triggers and returns expected API calls', async ({ page }) => {
+  const homePage = new HomePage(page);
+  const loginPage = new LoginPage(page);
+
+  const requests: Array<{ method: string; url: string }> = [];
+  const responses: Array<{ status: number; url: string; ok: boolean }> = [];
+
+  page.on('request', (req) => {
+    const url = req.url();
+    if (/login|customer|account/i.test(url)) {
+      requests.push({ method: req.method(), url });
+    }
+  });
+
+  page.on('response', (res) => {
+    const url = res.url();
+    if (/login|customer|account/i.test(url)) {
+      responses.push({
+        status: res.status(),
+        url,
+        ok: res.ok(),
+      });
+    }
+  });
+
+  await homePage.open();
+  await homePage.openLoginPage();
+
+  await loginPage.login('wrong@example.com', 'wrongpassword');
+
+  await expect(page.locator('body')).toContainText(/login|error|unsuccessful|credentials/i);
+
+  expect(requests.length).toBeGreaterThan(0);
+  expect(
+    requests.some((r) => r.method === 'POST' && /login|customer|account/i.test(r.url))
+  ).toBeTruthy();
+
+  expect(
+    responses.some((r) => /login|customer|account/i.test(r.url))
+  ).toBeTruthy();
+
+  expect(
+    responses.some((r) => r.status >= 200 && r.status < 400)
+  ).toBeTruthy();
+});
